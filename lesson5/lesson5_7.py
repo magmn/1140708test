@@ -3,20 +3,31 @@ from crawl4ai import AsyncWebCrawler,CrawlerRunConfig,CacheMode
 from crawl4ai.extraction_strategy import JsonCssExtractionStrategy
 
 async def main():
-    
-    url = 'https://3c.ltn.com.tw/news/62596'
+    raw_html = """<html>
+      <body>
+        <div class='crypto-row'>
+          <h2 class='coin-name'>Bitcoin</h2>
+          <span class='coin-price'>$28,000</span>
+        </div>
+        <div class='crypto-row'>
+          <h2 class='coin-name'>Ethereum</h2>
+          <span class='coin-price'>$1,800</span>
+        </div>
+      </body>
+    </html>"""
+
     schema = {
         "name":"範例項目",
-        "baseSelector":"[data-desc='內文']",
+        "baseSelector":"div.crypto-row",
         "fields":[
             {
-                "name":"標題",
-                "selector":"h1",
+                "name":"幣名",
+                "selector":"h2.coin-name",
                 "type":"text"
             },
             {
-                "name":"時間",
-                "selector":"span.time",
+                "name":"價格",
+                "selector":"span.coin-price",
                 "type":"text"
             }
         ]
@@ -32,7 +43,7 @@ async def main():
     async with AsyncWebCrawler() as crawler:
         #Run the crawler on a URL
         result = await crawler.arun(
-            url=url,
+            url=f"raw://{raw_html}",
             config=run_config
         )
         print(type(result.extracted_content)) 
